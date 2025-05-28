@@ -1,0 +1,29 @@
+{
+  "name": "nodejs-swarm-openai",
+  "version": "1.0.7",
+  "description": "Test implementation of OpenAI Swarm for Node.js — a multi-agent system with support for finalization, custom agents, and asynchronous tools.",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "type": "module",
+  "keywords": [
+    "openai",
+    "swarm",
+    "agent",
+    "llm",
+    "gpt",
+    "chatgpt",
+    "multi-agent",
+    "orchestration",
+    "ai",
+    "chatbot"
+  ],
+  "author": "Severskiy23",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "https-proxy-agent": "^7.0.6",
+    "openai": "^4.103.0"
+  }
+}
