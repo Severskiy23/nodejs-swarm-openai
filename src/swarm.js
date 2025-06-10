@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+import { ProxyAgent } from 'undici';
 import { Agent } from './agent.js';
 
 export class Swarm {
@@ -7,7 +7,8 @@ export class Swarm {
     const config = { apiKey };
 
     if (options.proxyUrl) {
-      config.httpAgent = new HttpsProxyAgent(options.proxyUrl);
+      const proxyAgent = new ProxyAgent(options.proxyUrl);
+      config.fetchOptions = { dispatcher: proxyAgent };
     }
 
     this.client = new OpenAI(config);

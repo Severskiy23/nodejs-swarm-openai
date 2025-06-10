@@ -32,7 +32,6 @@ export function convertFunctionToJsonSchema(fn) {
         throw new Error(`Invalid type '${paramType}' for parameter ${paramName} in function ${functionName}. Allowed types are: ${allowedTypes.join(', ')}.`);
       }
       
-      // Check for enum
       const enumMatch = paramDesc.match(/@enum\s+(\[.*?\])/);
       if (enumMatch) {
         try {
