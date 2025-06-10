@@ -122,6 +122,36 @@ swarm.run({
 });
 ```
 
+### Spent tokens
+
+```js
+const result = await swarm.run({
+  routerAgent,
+  agents: [needsAnalyst, positioningAgent, sellerAgent],
+  finalizerAgent,
+  messages: [
+    { role: 'user', content: 'I want a cheap and high-quality wooden sauna' }
+  ],
+  maxTurns: 6,
+  debug: false
+});
+console.log(result.totalTokens)
+```
+
+```js
+{
+  messages:[...]
+  tokenUsage: {
+    manager: 1797,
+    needs_analyst: 262,
+    positioning: 415,
+    seller: 579,
+    finalizer: 595
+  },
+  totalTokens: 3648
+}
+```
+
 ### Proxy
 Pass a proxy URL using `proxyUrl` option:
 

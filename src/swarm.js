@@ -12,6 +12,19 @@ export class Swarm {
     }
 
     this.client = new OpenAI(config);
+    this.tokenUsage = {};
+  }
+
+  resetTokenUsage() {
+    this.tokenUsage = {};
+  }
+
+  addTokenUsage(agentName, tokenCount) {
+    this.tokenUsage[agentName] = (this.tokenUsage[agentName] || 0) + tokenCount;
+  }
+
+  getTotalTokenUsage() {
+    return Object.values(this.tokenUsage).reduce((sum, val) => sum + val, 0);
   }
 
   async run({
@@ -24,6 +37,8 @@ export class Swarm {
   }) {
     if (!agents.length) throw new Error('No agents provided');
 
+    this.resetTokenUsage();
+
     const agentMap = Object.fromEntries(agents.map(agent => [agent.name, agent]));
     const toolSchemas = agents.map(a => a.toolSchema);
 
@@ -34,7 +49,6 @@ export class Swarm {
       model: 'gpt-4o',
       tools: []
     });
-
 
     let turns = 0;
     let currentMessages = [
@@ -51,6 +65,11 @@ export class Swarm {
         tools: toolSchemas,
         tool_choice: 'auto'
       });
+
+      const routerUsage = response.usage?.total_tokens || 0;
+      if (routerAgent) {
+        this.addTokenUsage(routerAgent.name, routerUsage);
+      }
 
       const msg = response.choices[0].message;
       if (debug) console.log('[MODEL]', msg);
@@ -83,6 +102,9 @@ export class Swarm {
             tools: agent.jsonSchemaTools,
             tool_choice: 'auto'
           });
+
+          const usage = nestedResponse.usage?.total_tokens || 0;
+          this.addTokenUsage(agentName, usage);
 
           const agentMsg = nestedResponse.choices[0].message;
           if (debug) console.log(`[AGENT RESPONSE: ${agentName}]`, agentMsg);
@@ -140,12 +162,18 @@ export class Swarm {
       });
 
       const finalMessage = finalResponse.choices[0].message;
+      const finalizerUsage = finalResponse.usage?.total_tokens || 0;
+      this.addTokenUsage(finalizer.name, finalizerUsage);
+
       if (debug) console.log('[FINALIZER]', finalMessage);
 
       currentMessages.push(finalMessage);
     }
 
-    return { messages: currentMessages };
+    return {
+      messages: currentMessages,
+      tokenUsage: this.tokenUsage,
+      totalTokens: this.getTotalTokenUsage()
+    };
   }
 }
-
